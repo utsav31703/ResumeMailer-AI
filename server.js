@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import "./config/passport.js"
 import authRoutes from "./routes/auth.js"
 import emailRoutes from "./routes/email.js"
+import resumeRoute from "./routes/resume.js";
 
 dotenv.config();
 const app=express();
@@ -23,6 +24,7 @@ app.use(passport.session());
 
 app.use('/auth',authRoutes);
 app.use('/email', emailRoutes);
+app.use("/resume", resumeRoute);
 // Add this after your app.use('/auth', authRoutes) etc.
 app.get('/me', (req, res) => {
   if (req.isAuthenticated && req.isAuthenticated()) {
