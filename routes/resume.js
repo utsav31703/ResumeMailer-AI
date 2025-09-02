@@ -1,10 +1,9 @@
 import express from "express";
 import multer from "multer";
 import { default as pdfParse } from "pdf-parse/lib/pdf-parse.js";
-
 import mammoth from "mammoth";
 import fs from "fs";
-import path from "path";
+
 
 const router=express.Router();
 

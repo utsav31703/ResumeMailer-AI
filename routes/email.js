@@ -16,8 +16,8 @@ function isLoggedIn(req,res,next){
 
 router.post("/send-bulk",isLoggedIn,async(req,res)=>{
     try{
-        const {to,subject,message}=req.body;
-        if(!to||!subject||!message) {
+        const {contacts,subject,message}=req.body;
+        if(!contacts || contacts.length ===0 || !subject || !message) {
            return res.status(400).json({error:"Missing fields"});
         }
     // Setup OAuth2 client with logged-in user’s tokens
@@ -30,12 +30,16 @@ router.post("/send-bulk",isLoggedIn,async(req,res)=>{
     const gmail=google.gmail({version:"v1",auth:oAuth2Client});
 
     let results=[];
-    for(let recipient of to){
+    for(let recipient of contacts){
+        console.log(recipient.name);
+        console.log(recipient);
+        
         const rawMessage=
-        `To: ${recipient}\r\n`+
+        `To: ${recipient.email}\r\n`+
         `Subject: ${subject}\r\n`+
         `Content-Type: text/html; charset=utf-8\r\n\r\n`+
-        `${message}`;
+        `Hello ${recipient.name ? recipient.name : "there"},<br><br>${message}`
+
         
         const encodedMesage=Buffer.from(rawMessage).toString("base64").replace(/\+/g, "-").replace(/\//g, "_")
         .replace(/=+$/, "");
@@ -48,7 +52,7 @@ router.post("/send-bulk",isLoggedIn,async(req,res)=>{
         });
         
         
-        results.push({recipient,status:"sent",id:sent.data.id});
+        results.push({recipient:recipient.email,status:"sent",id:sent.data.id});
     }
         
         res.json({sucess:true,results});
@@ -68,9 +72,9 @@ router.post("/upload-csv",isLoggedIn,upload.single("csvfile"),async (req,res)=>{
         const contacts=[];
         
           // Parse CSV
-          fs.createReadStream(req.file.path).pipe(csv()).on("data",(row)=>{
+          fs.createReadStream(req.file.path).pipe(csv({ mapHeaders: ({ header }) => header.trim().toLowerCase() })).on("data",(row)=>{
             if(row.email){
-                contacts.push({name:row.name,email:row.email});
+                contacts.push({name:row.name || "",email:row.email});
             }
           }).on("end",async ()=>{
             console.log("✅ CSV parsed:", contacts);
@@ -83,12 +87,12 @@ router.post("/upload-csv",isLoggedIn,upload.single("csvfile"),async (req,res)=>{
             fs.unlinkSync(req.file.path);
 
             //prepare email data
-            const to=contacts.map((c)=>c.email);
+            // const to=contacts.map((c)=>c.email);
             const subject="Test Bulk Email";
             const message="Hello, this is a test buld email from the ResumeMailer";
 
              // Call your existing bulk email logic
-             req.body={to,subject,message};
+             req.body={contacts,subject,message};
 
               // 👇 Instead of duplicating, call send-bulk directly
               router.handle(
@@ -103,7 +107,7 @@ router.post("/upload-csv",isLoggedIn,upload.single("csvfile"),async (req,res)=>{
           
 
     } catch (error) {
-        console.error("❌ Error uploading CSV:", err);
+        console.error("❌ Error uploading CSV:", error);
     res.status(500).json({ error: "Failed to process CSV" });
     }
 })
