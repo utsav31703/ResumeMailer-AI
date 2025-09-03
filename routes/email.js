@@ -96,7 +96,7 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
         body:`<p>Dear ${recipient.name},<br>Please find my resume attached.</p>`,
       }
     }
-      console.log("Sending email to", recipient.email, draftData,draftData.body);
+      // console.log("Sending email to", recipient.email);
 
 
       // Ensure resume path exists
@@ -174,7 +174,7 @@ router.post(
           //Delete file after parsing
           fs.unlinkSync(req.file.path);
 
-          console.log("✅ CSV parsed:", contacts);
+          // console.log("✅ CSV parsed:", contacts);
 
           if (contacts.length === 0) {
             return res.status(400).json({ error: "CSV has no vaild emails" });

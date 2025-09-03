@@ -18,7 +18,7 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    console.log("🔑 User after login:", req.user); // Debug here
+    // console.log("🔑 User after login:", req.user); // Debug here
     res.send("✅ Logged in with Google. You can now send emails!");
   }
 );
