@@ -6,12 +6,14 @@ import "./config/passport.js"
 import authRoutes from "./routes/auth.js"
 import emailRoutes from "./routes/email.js"
 import resumeRoute from "./routes/resume.js";
+import cors from "cors";
+
 
 dotenv.config();
 const app=express();
 
 app.use(express.json());
-
+app.use(cors())
 app.use(
     session({
         secret:process.env.SESSION_SECRET,
@@ -51,8 +53,8 @@ app.use((err, req, res, next) => {
   console.error("❌ Server Error:", err);
   res.status(500).json({ error: "Internal server error" });
 });
-
-app.listen(5000,()=>{
-    console.log("🚀 Server running on http://localhost:5000");
+const PORT=process.env.PORT
+app.listen(PORT,()=>{
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
     
 })
