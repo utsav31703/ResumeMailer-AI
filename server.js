@@ -31,7 +31,9 @@ app.get('/me', (req, res) => {
     // Passport attaches user to req.user
     res.json({
       loggedIn: true,
-      user: req.user
+      user: req.user,
+        resumeUploaded: !!req.session.resumePath,
+      contactsUploaded: !!req.session.contacts
     });
   } else {
     res.status(401).json({ loggedIn: false, message: "Not logged in" });
@@ -40,8 +42,15 @@ app.get('/me', (req, res) => {
 
 
 app.get('/',(req,res)=>{
-    res.send("welcome")
+    res.send("🚀 ResumeMailer-AI Backend Running!")
 })
+
+
+// ✅ Global Error Handler (add this before listen)
+app.use((err, req, res, next) => {
+  console.error("❌ Server Error:", err);
+  res.status(500).json({ error: "Internal server error" });
+});
 
 app.listen(5000,()=>{
     console.log("🚀 Server running on http://localhost:5000");

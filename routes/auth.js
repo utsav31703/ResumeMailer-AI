@@ -24,7 +24,9 @@ router.get(
 );
 router.get("/logout", (req, res) => {
   req.logout(() => {
-    res.send("Logged out!");
+    req.session.destroy(() => {
+      res.send("Logged out!");
+    });
   });
 });
 

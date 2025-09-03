@@ -49,9 +49,7 @@ router.post("/generate-draft", isLoggedIn, async (req, res) => {
     if (!resumeText) {
       return res.status(400).json({ error: "Please upload a resume first." });
     }
-    const applicantName =
-  req.user.profile?.displayName ||
-  req.user.profile?.name?.givenName;
+    const applicantName = req.user.profile?.name?.givenName || "Applicant";
     const draft = await generativeEmailContent(hrName, resumeText, jobRole,applicantName);
 
     res.json({ success: true, draft });
@@ -99,26 +97,17 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
       console.log("Sending email to", recipient.email, draftData,draftData.body);
 
 
-      // Ensure resume path exists
-if (!req.session.resumePath || !req.session.resumeName) {
-  return res.status(400).json({ error: "Please upload a resume first." });
-}
+      const rawMessage =
+        `To: ${recipient.email}\r\n` +
+        `Subject: ${draftData.subject}\r\n` +
+        `Content-Type: text/html; charset=utf-8\r\n\r\n` +
+        draftData.body;
 
-const mimeMessage = buildMimeMessage({
-  to: recipient.email,
-  from: req.user.profile?.emails?.[0]?.value || "me",
-  subject: draftData.subject,
-  body: draftData.body,
-  attachmentPath: req.session.resumePath,
-  attachmentName: req.session.resumeName,
-});
-
-const encodedMesage = Buffer.from(mimeMessage)
-  .toString("base64")
-  .replace(/\+/g, "-")
-  .replace(/\//g, "_")
-  .replace(/=+$/, "");
-
+      const encodedMesage = Buffer.from(rawMessage)
+        .toString("base64")
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
 
       const sent = await gmail.users.messages.send({
         userId: "me",
@@ -133,17 +122,7 @@ const encodedMesage = Buffer.from(mimeMessage)
         id: sent.data.id,
       });
     }
-    // 🗑️ Clean up resume file after sending
-    if (req.session.resumePath) {
-      try {
-        fs.unlinkSync(req.session.resumePath);
-        console.log("🗑️ Deleted resume:", req.session.resumePath);
-        req.session.resumePath = null;
-        req.session.resumeName = null;
-      } catch (err) {
-        console.error("⚠️ Error deleting resume:", err);
-      }
-    }
+
     res.json({ success: true, results });
   } catch (err) {
     console.error("❌ Error sending email:", err);
@@ -207,4 +186,3 @@ router.post(
 );
 
 export default router;
-//resume wala part bacha h

@@ -37,15 +37,21 @@ router.post("/upload",upload.single("resume"),async(req,res)=>{
             const dataBuffer=fs.readFileSync(filePath);
             const pdfData=await pdfParse(dataBuffer);
             extractedText=pdfData.text;
-        }else if(req.file.mimetype==="application/vnd.openxmlformats-officedocument.wordprocessingml.document"){
+        }else if(
+            req.file.mimetype==="application/vnd.openxmlformats-officedocument.wordprocessingml.document"){
             // Parse DOCX
             const result=await mammoth.extractRawText({path:filePath});
             extractedText=result.value;
         }else{
             res.status(400).json({error:"Unsupported file type"});
         }
-            // Optional: Delete file after parsing
-            fs.unlinkSync(filePath);
+            // Save extracted text in session
+          req.session.resumeText = extractedText;
+          req.session.resumeName = req.file.originalname;
+          req.session.resumePath = req.file.path;
+            // console.log("session me kya h ",req.session.resumeText);
+            
+           
 
             res.json({
                 sucess:true,
