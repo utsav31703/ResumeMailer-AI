@@ -19,7 +19,7 @@ router.get(
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
     // console.log("🔑 User after login:", req.user); // Debug here
-    res.send("✅ Logged in with Google. You can now send emails!");
+   res.redirect("/")
   }
 );
 router.get("/logout", (req, res) => {
