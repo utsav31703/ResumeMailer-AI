@@ -64,7 +64,7 @@ router.post("/generate-draft", isLoggedIn, async (req, res) => {
 
 router.post("/send-bulk", isLoggedIn, async (req, res) => {
   try {
-    
+    const { jobRole } = req.body;
     const resumeText = req.session.resumeText;
     const contacts = req.body.contacts || req.session.contacts;
 
@@ -79,7 +79,10 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
     });
 
     const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
-   const applicantName = req.user.profile?.name?.givenName || "Applicant";
+  const applicantName =
+  req.user.profile?.displayName ||
+  req.user.profile?.name?.givenName ||
+  "Applicant";
 
     let results = [];
     for (let recipient of contacts) {
@@ -88,7 +91,7 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
     if(req.body.draft && req.body.draft.body){
       draftData=req.body.draft;
     }else{
-      draftData = await generativeEmailContent(recipient.name, resumeText,applicantName)
+      draftData = await generativeEmailContent(recipient.name, resumeText,jobRole,applicantName)
     }
 
     if(!draftData || !draftData.body){
