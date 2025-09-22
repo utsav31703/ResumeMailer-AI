@@ -6,7 +6,7 @@ const genAi = new GoogleGenerativeAI(process.env.API_KEY);
 export async function generativeEmailContent(hrName, resumeText, jobRole,applicantName) {
     try {
 
-        const model = genAi.getGenerativeModel({ model: "gemini-1.5-pro" });
+        const model = genAi.getGenerativeModel({ model: "Gemini 2.0 Flash-Lite" });
 
         const prompt = `
 You are an assistant that writes **concise, professional job application emails**.
