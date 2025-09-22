@@ -52,6 +52,7 @@ router.post("/generate-draft", isLoggedIn, async (req, res) => {
     const applicantName =
   req.user.profile?.displayName ||
   req.user.profile?.name?.givenName;
+    console.log(`applicant name ${applicantName} or`)
     const draft = await generativeEmailContent(hrName, resumeText, jobRole,applicantName);
 
     res.json({ success: true, draft });
