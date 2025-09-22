@@ -49,9 +49,8 @@ router.post("/generate-draft", isLoggedIn, async (req, res) => {
     if (!resumeText) {
       return res.status(400).json({ error: "Please upload a resume first." });
     }
-    const applicantName =
-  req.user.profile?.displayName ||
-  req.user.profile?.name?.givenName;
+    const applicantName = req.user.displayName || req.user.name?.givenName || "Applicant";
+
     console.log(`applicant name ${applicantName} or`)
     const draft = await generativeEmailContent(hrName, resumeText, jobRole,applicantName);
 
@@ -64,7 +63,7 @@ router.post("/generate-draft", isLoggedIn, async (req, res) => {
 
 router.post("/send-bulk", isLoggedIn, async (req, res) => {
   try {
-    const { jobRole } = req.body;
+    
     const resumeText = req.session.resumeText;
     const contacts = req.body.contacts || req.session.contacts;
 
@@ -79,10 +78,8 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
     });
 
     const gmail = google.gmail({ version: "v1", auth: oAuth2Client });
-  const applicantName =
-  req.user.profile?.displayName ||
-  req.user.profile?.name?.givenName ||
-  "Applicant";
+ const applicantName = req.user.displayName || req.user.name?.givenName || "Applicant";
+
 
     let results = [];
     for (let recipient of contacts) {
@@ -91,7 +88,7 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
     if(req.body.draft && req.body.draft.body){
       draftData=req.body.draft;
     }else{
-      draftData = await generativeEmailContent(recipient.name, resumeText,jobRole,applicantName)
+      draftData = await generativeEmailContent(recipient.name, resumeText,recipient.jobRole,applicantName)
     }
 
     if(!draftData || !draftData.body){
@@ -171,7 +168,7 @@ router.post(
         .pipe(csv({ mapHeaders: ({ header }) => header.trim().toLowerCase() }))
         .on("data", (row) => {
           if (row.email) {
-            contacts.push({ name: row.name || "", email: row.email });
+            contacts.push({ name: row.name || "", email: row.email,jobRole: row.jobrole || "the advertised position" });
           }
         })
         .on("end", async () => {
