@@ -20,10 +20,14 @@ passport.use(
             // profile → Google user info (email, name, picture)
 
             // Save tokens in user object
-            const user = { id: profile.id,
-                 email: profile.emails[0].value, 
-                 accessToken, 
-                 refreshToken }
+            const user = { 
+    id: profile.id,
+    email: profile.emails[0].value, 
+    accessToken, 
+    refreshToken,
+    displayName: profile.displayName, // full name
+    name: profile.name // { givenName, familyName } 
+}
 
             //         console.log("ACCESS TOKEN:", accessToken);
             //   console.log("REFRESH TOKEN:", refreshToken);
