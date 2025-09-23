@@ -43,6 +43,8 @@ function buildMimeMessage({ to, from, subject, body, attachmentPath, attachmentN
 // 📌 Generate AI Draft Email
 router.post("/generate-draft", isLoggedIn, async (req, res) => {
   try {
+
+    // console.log(req.body)
     const { hrName, jobRole } = req.body;
     const resumeText = req.session.resumeText; // stored in resume.js after upload
 
@@ -65,6 +67,8 @@ router.post("/send-bulk", isLoggedIn, async (req, res) => {
   try {
     
     const resumeText = req.session.resumeText;
+    // console.log(`resume :${req.session.resumeText} and ${req.body.contacts || req.session.contacts}`);
+    
     const contacts = req.body.contacts || req.session.contacts;
 
     if (!contacts || contacts.length === 0) {
